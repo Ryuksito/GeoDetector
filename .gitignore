@@ -1,0 +1,91 @@
+api/venv/
+
+# Python Bytecode
+*.pyc
+*.pyo
+__pycache__/
+
+# Virtual Environments
+env/
+venv/
+ENV/
+.VENV/
+
+# Editor Configurations
+.idea/
+.vscode/
+*.swp
+
+# OS Generated Files
+.DS_Store
+Thumbs.db
+
+# Logs and Debugging
+*.log
+*.out
+*.err
+
+# FastAPI Static/Media Files (if applicable)
+staticfiles/
+media/
+
+# Test and Coverage Reports
+htmlcov/
+*.cover
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.pytest_cache/
+.pytest_cache/
+.tox/
+
+# Dependency Management
+pip-log.txt
+pip-delete-this-directory.txt
+*.lock
+
+# Ignore migrations (optional, depending on ORM)
+migrations/
+
+# Build/Distribution
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Docker
+*.env
+docker-compose.override.yml
+.env.*
+
+# Security Keys (Secrets)
+*.key
+*.pem
+*.crt
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
+
+# PyInstaller
+*.spec
+
+# Celery and Task Queues
+celerybeat-schedule
+celerybeat.pid
+
+# FastAPI Swagger UI
+openapi.json
+openapi.yaml
+
+# Specific FastAPI Extensions (e.g., Starlette Session Files)
+sessions/
+
+# Node.js Files (if using npm/yarn for static files)
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock

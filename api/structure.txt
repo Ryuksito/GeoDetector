@@ -1,0 +1,26 @@
+Api/
+├── app/
+│   ├── __init__.py
+│   ├── main.py          # Punto de entrada principal de FastAPI
+│   ├── config.py        # Configuración del proyecto
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── routes/
+│   │   │   ├── __init__.py
+│   │   │   ├── video.py       # Rutas relacionadas con el streaming
+│   │   │   ├── control.py     # Rutas para control de datos/comandos
+│   │   │   ├── health.py      # Rutas para chequear el estado del sistema
+│   │   ├── dependencies.py    # Dependencias reutilizables (como DB o servicios)
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── camera.py     # Lógica para manejar la cámara y OpenCV
+│   │   ├── webrtc.py     # Lógica específica de WebRTC
+│   │   ├── processing.py # Procesamiento de imágenes (formas, etc.)
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   ├── helpers.py    # Funciones auxiliares generales
+├── tests/
+│   ├── test_routes.py    # Pruebas para las rutas
+│   ├── test_services.py  # Pruebas para los servicios
+├── requirements.txt      # Dependencias del proyecto
+└── README.md             # Documentación del backend
