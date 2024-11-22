@@ -1,4 +1,5 @@
-Api/
+api/
+├── __init__.py
 ├── app/
 │   ├── __init__.py
 │   ├── main.py          # Punto de entrada principal de FastAPI
