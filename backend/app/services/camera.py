@@ -34,6 +34,11 @@ class Camera:
             # Para asegurarnos de no re-inicializar
             self._initialized = True
 
+            self.focal_lenght = 600 # cm, ecuation (width * REAL_DISTANCE) / REAL_WIDTH
+            self.cuadrilateral_area = 196 # cm
+            self.triangle_area = 119 # cm
+            self.circle_area = 154 # cm
+
     def start(self):
         """Inicia el hilo para capturar frames de la cámara."""
         if not self.running:
@@ -60,6 +65,10 @@ class Camera:
             self.lower_hsv = np.array(lower)
         if upper is not None and len(upper) == 3:
             self.upper_hsv = np.array(upper)
+
+    def set_camera(self, camera_index: int):
+        self.camera_index = camera_index
+        self.cap = cv2.VideoCapture(camera_index)
 
     def custom_set_hsv(self, values:Dict[str, int]):
         """
@@ -102,25 +111,24 @@ class Camera:
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             mask = cv2.inRange(hsv, self.lower_hsv, self.upper_hsv)
             mask = cv2.erode(mask, self.kernel)
+            
+            # declaracion de variables de medicion
+            distance = .0
+            area = .0
+            x_dobj = .0
+            y_dobj = .0
+            z_dobj = .0
 
             # Obtener contornos
             contours = self._get_contours(mask)
             for cnt in contours:
                 area = cv2.contourArea(cnt)
-                approx = cv2.approxPolyDP(cnt, 0.02 * cv2.arcLength(cnt, True), True)
-                x = approx.ravel()[0]
-                y = approx.ravel()[1]
-
+                
                 if area > 400:
-                    cv2.drawContours(frame, [approx], 0, (0, 255, 0), 5)
-                    if len(approx) == 3:
-                        cv2.putText(frame, "Triangle", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                    elif len(approx) == 4:
-                        cv2.putText(frame, "Rectangle", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                    elif 7 < len(approx) < 20:
-                        cv2.putText(frame, "Circle", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                    else: 
-                        print(len(approx))
+                    approx = cv2.approxPolyDP(cnt, 0.02 * cv2.arcLength(cnt, True), True)
+                    if len(approx) >= 3 and len(contours) <= 20:
+                        distance = self._shape_detection(approx, area, frame)
+                        x_dobj, y_dobj, z_dobj = self._calculate_xy_distance(frame.shape, distance, cnt, frame)
 
             # Actualizar el frame y los metadatos
             self.frame = frame
@@ -128,7 +136,62 @@ class Camera:
             self.metadata = {
                 'frame_width': frame.shape[1],
                 'frame_height': frame.shape[0],
+                'x_dobj': x_dobj,
+                'y_dobj': y_dobj,
+                'z_dobj': z_dobj,
+                'dobj': distance,
+                'area': area,
             }
+
+    def _shape_detection(self, approx, area, frame):
+        x = approx.ravel()[0]
+        y = approx.ravel()[1]
+        distance = 0
+
+        cv2.drawContours(frame, [approx], 0, (0, 255, 0), 5)
+        if len(approx) == 3:
+            distance = np.sqrt((self.triangle_area * self.focal_lenght**2) / area)
+            cv2.putText(frame, f"T:{distance}", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        elif len(approx) == 4:
+            distance = np.sqrt((self.cuadrilateral_area * self.focal_lenght**2) / area)
+            cv2.putText(frame, f"Cu:{distance} cm", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        elif 7 < len(approx) < 20:
+            distance = np.sqrt((self.circle_area * self.focal_lenght**2) / area)
+            cv2.putText(frame, f"Ci:{distance}", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+        return distance
+        
+    def _calculate_xy_distance(self, img_size, distance, cnt, frame):
+        """
+        Esta funcion a partir de la distancia debe descomoner esa distancia en coordenadas x y
+        """
+        width = img_size[1]
+        heigth = img_size[0]
+
+        x_dobj = 0.
+        y_dobj = 0.
+        z_dobj = distance
+
+        M = cv2.moments(cnt)
+        if M["m00"] != 0:  # Evita división por cero
+            x_obj = int(M["m10"] / M["m00"])
+            y_obj = int(M["m01"] / M["m00"])
+        else:
+            x_obj, y_obj = 0, 0
+
+        x_relative = x_obj - width / 2
+        y_relative = heigth / 2 - y_obj  # Invertir eje Y
+
+
+        factor = (z_dobj / self.focal_lenght)
+        x_dobj = x_relative * factor
+        y_dobj = y_relative * factor
+
+
+        cv2.circle(frame, (int(x_obj), int(y_obj)), 5, (0, 0, 255), -1)
+        cv2.circle(frame, (width // 2, heigth // 2), 5, (0, 255, 0), -1)
+
+        return (x_dobj, y_dobj, z_dobj)
 
     def _get_contours(self, mask):
         """Obtiene los contornos de la máscara."""

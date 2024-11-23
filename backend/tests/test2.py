@@ -156,7 +156,6 @@ class Camera:
         elif len(approx) == 4:
             distance = np.sqrt((self.cuadrilateral_area * self.focal_lenght**2) / area)
             cv2.putText(frame, f"Cu:{distance} cm", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-            print(area)
         elif 7 < len(approx) < 20:
             distance = np.sqrt((self.circle_area * self.focal_lenght**2) / area)
             cv2.putText(frame, f"Ci:{distance}", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)

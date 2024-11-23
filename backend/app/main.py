@@ -3,7 +3,7 @@ from app.api.routes import video
 from app.services.camera import Camera
 
 app = FastAPI()
-cam = Camera(camera_index=0)
+cam = Camera()
 cam.start()
 
 # Incluir las rutas de video
