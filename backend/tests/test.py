@@ -5,6 +5,9 @@ import numpy as np
 from typing import Dict, List, Union
 from threading import Thread, Lock
 
+REAL_WIDTH = 14.0  # Ancho real del círculo en cm
+REAL_DISTANCE = 31.0  # Distancia real en cm
+
 class Camera:
     _instance = None  # Variable de clase para el patrón Singleton
     _lock = Lock()  # Lock para evitar problemas de concurrencia
@@ -35,6 +38,11 @@ class Camera:
 
             # Para asegurarnos de no re-inicializar
             self._initialized = True
+
+            self.focal_lenght = 667 # cm, ecuation (width * REAL_DISTANCE) / REAL_WIDTH
+            self.cuadrilateral_area = 196 # cm
+            self.triangle_area = 119 # cm
+            self.circle_area = 154 # cm
 
     def start(self):
         """Inicia el hilo para capturar frames de la cámara."""
@@ -118,7 +126,9 @@ class Camera:
                     if len(approx) == 3:
                         cv2.putText(frame, "Triangle", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                     elif len(approx) == 4:
-                        cv2.putText(frame, "Rectangle", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                        a, b, w, d = cv2.boundingRect(max(contours, key=cv2.contourArea))
+                        focal_length = (w * REAL_DISTANCE) / REAL_WIDTH
+                        cv2.putText(frame, f"Rectangle {focal_length}", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                     elif 7 < len(approx) < 20:
                         cv2.putText(frame, "Circle", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                     else: 
@@ -142,32 +152,32 @@ class Camera:
 
 if __name__ == "__main__":
     # Crear una instancia de la cámara
-    cam = Camera()
+    cam = Camera(1)
     print('Config: ', id(cam))
 
     # Iniciar la cámara en segundo plano
     cam.start()
 
-    # def lh(value):
-    #     cam.custom_set_hsv({'lh': value})
-    # def ls(value):
-    #     cam.custom_set_hsv({'ls': value})
-    # def lv(value):
-    #     cam.custom_set_hsv({'lv': value})
-    # def uh(value):
-    #     cam.custom_set_hsv({'uh': value})
-    # def us(value):
-    #     cam.custom_set_hsv({'us': value})
-    # def uv(value):
-    #     cam.custom_set_hsv({'uv': value})
+    def lh(value):
+        cam.custom_set_hsv({'lh': value})
+    def ls(value):
+        cam.custom_set_hsv({'ls': value})
+    def lv(value):
+        cam.custom_set_hsv({'lv': value})
+    def uh(value):
+        cam.custom_set_hsv({'uh': value})
+    def us(value):
+        cam.custom_set_hsv({'us': value})
+    def uv(value):
+        cam.custom_set_hsv({'uv': value})
 
-    # cv2.namedWindow("Trackbars")
-    # cv2.createTrackbar("L-H", "Trackbars", 0, 180, lh)
-    # cv2.createTrackbar("L-S", "Trackbars", 0, 255, ls)
-    # cv2.createTrackbar("L-V", "Trackbars", 0, 255, lv)
-    # cv2.createTrackbar("U-H", "Trackbars", 0, 180, uh)
-    # cv2.createTrackbar("U-S", "Trackbars", 0, 255, us)
-    # cv2.createTrackbar("U-V", "Trackbars", 0, 255, uv)
+    cv2.namedWindow("Trackbars")
+    cv2.createTrackbar("L-H", "Trackbars", 0, 180, lh)
+    cv2.createTrackbar("L-S", "Trackbars", 0, 255, ls)
+    cv2.createTrackbar("L-V", "Trackbars", 0, 255, lv)
+    cv2.createTrackbar("U-H", "Trackbars", 0, 180, uh)
+    cv2.createTrackbar("U-S", "Trackbars", 0, 255, us)
+    cv2.createTrackbar("U-V", "Trackbars", 0, 255, uv)
 
     try:
         while True:
