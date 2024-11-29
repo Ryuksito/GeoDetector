@@ -29,9 +29,9 @@ class UART:
         Envía datos al puerto UART en formato JSON.
         """
         if self.serial_port.is_open:
-            json_data = json.dumps(data)
-            self.serial_port.write((json_data + '\n').encode('utf-8'))
-            print(f"Enviado: {json_data}")
+            serial_data = ';'.join([str(v) for v in data.values()])
+            self.serial_port.write(serial_data)
+            print(f"Enviado: {serial_data}")
 
     def _transmit_loop(self):
         """
@@ -43,6 +43,8 @@ class UART:
                 metadata = cam.metadata
                 if metadata:
                     self.send_data(metadata)
+                
+                if self.serial_port.in_waiting > 0:
                     data = self.serial_port.readline().decode('utf-8').strip()
                     print(f"Recibido del ESP32: {data}")
             except Exception as e:
@@ -74,30 +76,3 @@ class UART:
             self.serial_port.close()
             print("Hilo de transmisión UART detenido y puerto cerrado.")
 
-
-# Ejemplo de uso
-if __name__ == "__main__":
-    from app.services.camera import Camera  # Asegúrate de importar correctamente la clase Camera
-
-    # Instancia de la cámara (Singleton)
-    cam = Camera()
-
-    # Instancia de UART (Singleton)
-    uart = UART(port="/dev/ttyUSB0", baud_rate=115200)
-
-    try:
-        # Inicia el hilo de transmisión UART con los datos de la cámara
-        uart.start(lambda: cam.metadata)
-
-        print("Presiona Ctrl+C para detener el programa.")
-
-        # Hilo principal permanece activo para otras tareas
-        while True:
-            time.sleep(1)
-
-    except KeyboardInterrupt:
-        print("Deteniendo...")
-        uart.stop()
-    except Exception as e:
-        print(f"Error: {e}")
-        uart.stop()
