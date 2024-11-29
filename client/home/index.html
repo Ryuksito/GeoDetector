@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Streaming</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body>
+    <!-- Botones de formas -->
+    <div id="shape-buttons">
+        <button id="btn-square">Cuadrado</button>
+        <button id="btn-triangle">Triángulo</button>
+        <button id="btn-circle">Círculo</button>
+    </div>
+
+    <div id="container">
+
+        <div id="metadata-container">
+            <h2>Datos del Video</h2>
+            <div id="metadata-content">
+            </div>
+        </div>
+
+        <!-- Contenedor del video -->
+        <div id="video-container">
+            <img id="video-stream" src="/detection/video" alt="Video Stream">
+            <div id="video-controls">
+                <button id="btn-video">Ver Video</button>
+                <button id="btn-mask">Ver Mask</button>
+            </div>
+        </div>
+
+        <!-- Controles para los sliders -->
+        <div id="controls">
+            <h2>Ajustar HSV</h2>
+            <div>
+                <label>Lower H:</label>
+                <input type="range" id="lower-h" min="0" max="180" value="0">
+                <span id="lower-h-value">0</span>
+            </div>
+            <div>
+                <label>Lower S:</label>
+                <input type="range" id="lower-s" min="0" max="255" value="0">
+                <span id="lower-s-value">0</span>
+            </div>
+            <div>
+                <label>Lower V:</label>
+                <input type="range" id="lower-v" min="0" max="255" value="0">
+                <span id="lower-v-value">0</span>
+            </div>
+            <div>
+                <label>Upper H:</label>
+                <input type="range" id="upper-h" min="0" max="180" value="180">
+                <span id="upper-h-value">180</span>
+            </div>
+            <div>
+                <label>Upper S:</label>
+                <input type="range" id="upper-s" min="0" max="255" value="255">
+                <span id="upper-s-value">255</span>
+            </div>
+            <div>
+                <label>Upper V:</label>
+                <input type="range" id="upper-v" min="0" max="255" value="255">
+                <span id="upper-v-value">255</span>
+            </div>
+
+            <div id="video-controls">
+                <button id="reset-hsv">Restablecer HSV</button>
+                <button id="set-hsv">Set HSV</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>

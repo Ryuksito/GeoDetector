@@ -25,9 +25,6 @@ Thumbs.db
 *.out
 *.err
 
-# FastAPI Static/Media Files (if applicable)
-staticfiles/
-media/
 
 # Test and Coverage Reports
 htmlcov/
@@ -81,13 +78,5 @@ openapi.yaml
 
 # Specific FastAPI Extensions (e.g., Starlette Session Files)
 sessions/
-
-# Node.js Files (if using npm/yarn for static files)
-node_modules/
-npm-debug.log
-yarn-debug.log
-yarn-error.log
-package-lock.json
-yarn.lock
 
 esp32/
