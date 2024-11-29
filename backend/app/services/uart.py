@@ -2,6 +2,7 @@ import serial
 import json
 import threading
 import time
+from app.services.camera import Camera
 
 cam = Camera()
 
