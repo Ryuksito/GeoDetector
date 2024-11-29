@@ -80,3 +80,4 @@ openapi.yaml
 sessions/
 
 esp32/
+UART/

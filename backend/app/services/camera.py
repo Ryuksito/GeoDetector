@@ -6,7 +6,6 @@ from app.models.hsv import HSV
 from app.models.shapes import ShapeType, Shape, SelectShapes
 from app.utils.helpers import get_json_settings, set_json_settings
 
-i = 0 # borrar
 
 class Camera:
     _instance = None  # Variable de clase para el patrón Singleton
@@ -28,7 +27,13 @@ class Camera:
             self.cap = cv2.VideoCapture(self.camera_index)
             self.frame = None
             self.mask = None
-            self.metadata = None
+            self.metadata = {
+                "x_dobj": 0,
+                "y_dobj": 0,
+                "z_dobj": 0,
+                "dobj": 0,
+                "area": 4.5
+            }
             self.running = False
 
             # Valores HSV predeterminados
@@ -214,3 +219,4 @@ class Camera:
         else:
             _, contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         return contours
+    

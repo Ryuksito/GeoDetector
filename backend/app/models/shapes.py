@@ -18,7 +18,6 @@ class Quadrilateral(Shape):
     SIDES = (4,)
     
     def eval_sides(self, sides:int):
-        print(f"{self.__class__.__name__}, {sides}, {sides} == {Circle.SIDES[0]} = {sides == Quadrilateral.SIDES[0]}")
         return sides == Quadrilateral.SIDES[0]
 
 class Triangle(Shape):
@@ -26,7 +25,6 @@ class Triangle(Shape):
     SIDES = (3,)
 
     def eval_sides(self, sides:int):
-        print(f"{self.__class__.__name__}, {sides}, {sides} == {Circle.SIDES[0]} = {sides == Quadrilateral.SIDES[0]}")
         return sides ==  Triangle.SIDES[0]
 
 class Circle(Shape):
@@ -34,7 +32,6 @@ class Circle(Shape):
     SIDES = (7, 20)
 
     def eval_sides(self, sides:int):
-        print(f"{self.__class__.__name__}, {sides}, {Circle.SIDES[-1]} <= {sides} <= {Circle.SIDES[-1]} = {Circle.SIDES[-1] <= sides <= Circle.SIDES[-1]}")
         return Circle.SIDES[0] <= sides <= Circle.SIDES[-1]
 
 class ShapeType( Enum):
