@@ -2,6 +2,11 @@ import cv2
 import numpy as np
 from typing import Dict, List, Union
 from threading import Thread, Lock
+from app.models.hsv import HSV
+from app.models.shapes import ShapeType, Shape, SelectShapes
+from app.utils.helpers import get_json_settings, set_json_settings
+
+i = 0 # borrar
 
 class Camera:
     _instance = None  # Variable de clase para el patrón Singleton
@@ -14,30 +19,38 @@ class Camera:
                 cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, camera_index=0):
+    def __init__(self):
         if not hasattr(self, "_initialized"):
+            config = get_json_settings()
+
             # Inicializa la cámara y las variables
-            self.camera_index = camera_index
-            self.cap = cv2.VideoCapture(camera_index)
+            self.camera_index = config['cam_idx']
+            self.cap = cv2.VideoCapture(self.camera_index)
             self.frame = None
             self.mask = None
             self.metadata = None
             self.running = False
 
             # Valores HSV predeterminados
-            self.lower_hsv = np.array([40, 40, 90])
-            self.upper_hsv = np.array([110, 255, 255])
+            self.hsv = HSV(
+                lower_hsv = np.array(config['lower_hsv']),
+                upper_hsv = np.array(config['upper_hsv'])
+            )
 
             # Kernel para operaciones morfológicas
-            self.kernel = np.ones((5, 5), np.uint8)
+            self.kernel = np.ones(config['kernel_shape'], np.uint8)
 
             # Para asegurarnos de no re-inicializar
             self._initialized = True
 
-            self.focal_lenght = 600 # cm, ecuation (width * REAL_DISTANCE) / REAL_WIDTH
-            self.cuadrilateral_area = 196 # cm
-            self.triangle_area = 119 # cm
-            self.circle_area = 154 # cm
+            self.focal_lenght = config['focal_lenght'] # cm, ecuation (width * REAL_DISTANCE) / REAL_WIDTH
+            if config['target_shape'] == SelectShapes.QUADRILATERAL:
+                self.target_shape: Shape = ShapeType.QUADRILATERAL.value
+            elif config['target_shape'] == SelectShapes.TRIANGLE:
+                self.target_shape: Shape = ShapeType.TRIANGLE.value
+            elif config['target_shape'] == SelectShapes.CIRCLE:
+                self.target_shape: Shape = ShapeType.CIRCLE.value
+            else: self.target_shape = ShapeType.QUADRILATERAL.value
 
     def start(self):
         """Inicia el hilo para capturar frames de la cámara."""
@@ -62,9 +75,16 @@ class Camera:
     def set_hsv(self, lower: Union[List[int], None], upper: Union[List[int], None]):
         """Configura los rangos HSV."""
         if lower is not None and len(lower) == 3:
-            self.lower_hsv = np.array(lower)
+            self.hsv.lower_hsv = np.array(lower)
         if upper is not None and len(upper) == 3:
-            self.upper_hsv = np.array(upper)
+            self.hsv.upper_hsv = np.array(upper)
+    
+    def set_shape(self, shape: Shape):
+        self.target_shape = shape
+
+    def reset_hsv(self):
+        """Restablece los rangos HSV predeterminados."""
+        self.set_hsv(np.array([40, 40, 90]), np.array([110, 255, 255]))
 
     def set_camera(self, camera_index: int):
         self.camera_index = camera_index
@@ -88,17 +108,17 @@ class Camera:
                 Cualquier clave no incluida o con valor `None` no se actualizará.
         """
         if values.get('lh') is not None:
-            self.lower_hsv[0] = values.get('lh')
+            self.hsv.lower_hsv[0] = values.get('lh')
         if values.get('ls') is not None:
-            self.lower_hsv[1] = values.get('ls')
+            self.hsv.lower_hsv[1] = values.get('ls')
         if values.get('lv') is not None:
-            self.lower_hsv[2] = values.get('lv')
+            self.hsv.lower_hsv[2] = values.get('lv')
         if values.get('uh') is not None:
-            self.upper_hsv[0] = values.get('uh')
+            self.hsv.upper_hsv[0] = values.get('uh')
         if values.get('us') is not None:
-            self.upper_hsv[1] = values.get('us')
+            self.hsv.upper_hsv[1] = values.get('us')
         if values.get('uv') is not None:
-            self.upper_hsv[2] = values.get('uv')
+            self.hsv.upper_hsv[2] = values.get('uv')
 
     def _loop(self):
         """Captura y procesa frames en segundo plano."""
@@ -109,7 +129,7 @@ class Camera:
 
             # Convertir a HSV y aplicar la máscara
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-            mask = cv2.inRange(hsv, self.lower_hsv, self.upper_hsv)
+            mask = cv2.inRange(hsv, np.array(self.hsv.lower_hsv), np.array(self.hsv.upper_hsv))
             mask = cv2.erode(mask, self.kernel)
             
             # declaracion de variables de medicion
@@ -134,8 +154,6 @@ class Camera:
             self.frame = frame
             self.mask = mask
             self.metadata = {
-                'frame_width': frame.shape[1],
-                'frame_height': frame.shape[0],
                 'x_dobj': x_dobj,
                 'y_dobj': y_dobj,
                 'z_dobj': z_dobj,
@@ -148,16 +166,12 @@ class Camera:
         y = approx.ravel()[1]
         distance = 0
 
-        cv2.drawContours(frame, [approx], 0, (0, 255, 0), 5)
-        if len(approx) == 3:
-            distance = np.sqrt((self.triangle_area * self.focal_lenght**2) / area)
-            cv2.putText(frame, f"T:{distance}", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-        elif len(approx) == 4:
-            distance = np.sqrt((self.cuadrilateral_area * self.focal_lenght**2) / area)
-            cv2.putText(frame, f"Cu:{distance} cm", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-        elif 7 < len(approx) < 20:
-            distance = np.sqrt((self.circle_area * self.focal_lenght**2) / area)
-            cv2.putText(frame, f"Ci:{distance}", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        
+
+        if self.target_shape.eval_sides(len(approx)):
+            cv2.drawContours(frame, [approx], 0, (0, 255, 0), 5)
+            distance = np.sqrt((self.target_shape.AREA * self.focal_lenght**2) / area)
+            cv2.putText(frame, f"{self.target_shape}:{distance}", (0, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
         return distance
         

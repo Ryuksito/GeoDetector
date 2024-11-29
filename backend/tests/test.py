@@ -124,13 +124,13 @@ class Camera:
                 if area > 400:
                     cv2.drawContours(frame, [approx], 0, (0, 255, 0), 5)
                     if len(approx) == 3:
-                        cv2.putText(frame, "Triangle", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                        cv2.putText(frame, "Triangle", (0, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                     elif len(approx) == 4:
                         a, b, w, d = cv2.boundingRect(max(contours, key=cv2.contourArea))
                         focal_length = (w * REAL_DISTANCE) / REAL_WIDTH
-                        cv2.putText(frame, f"Rectangle {focal_length}", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                        cv2.putText(frame, f"Rectangle {focal_length}", (0,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                     elif 7 < len(approx) < 20:
-                        cv2.putText(frame, "Circle", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                        cv2.putText(frame, "Circle", (0, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                     else: 
                         print(len(approx))
 
@@ -152,7 +152,7 @@ class Camera:
 
 if __name__ == "__main__":
     # Crear una instancia de la cámara
-    cam = Camera(1)
+    cam = Camera(0)
     print('Config: ', id(cam))
 
     # Iniciar la cámara en segundo plano

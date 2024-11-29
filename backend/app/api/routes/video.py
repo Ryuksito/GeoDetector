@@ -3,7 +3,7 @@ from fastapi.responses import StreamingResponse
 import cv2
 from app.services.camera import Camera
 
-router = APIRouter()
+router = APIRouter(prefix='/detection')
 cam = Camera()
 
 def gen_frames(is_mask:bool=False):
@@ -20,10 +20,14 @@ def gen_frames(is_mask:bool=False):
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
-@router.get("/video")
+@router.get("/video", tags=["video"])
 async def video_feed():
     return StreamingResponse(gen_frames(), media_type="multipart/x-mixed-replace; boundary=frame")
 
-@router.get("/mask")
+@router.get("/mask", tags=["video"])
 async def video_feed():
     return StreamingResponse(gen_frames(True), media_type="multipart/x-mixed-replace; boundary=frame")
+
+@router.get("/metadata", tags=["control"])
+async def get_metadata():
+    return cam.metadata

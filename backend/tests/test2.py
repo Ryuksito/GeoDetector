@@ -191,6 +191,7 @@ class Camera:
 
         cv2.circle(frame, (int(x_obj), int(y_obj)), 5, (0, 0, 255), -1)
         cv2.circle(frame, (width // 2, heigth // 2), 5, (0, 255, 0), -1)
+        print(f'x: {x_dobj}, y: {y_dobj}, z: {z_dobj}')
 
         return (x_dobj, y_dobj, z_dobj)
 
@@ -204,7 +205,7 @@ class Camera:
 
 if __name__ == "__main__":
     # Crear una instancia de la cámara
-    cam = Camera(1)
+    cam = Camera(0)
     print('Config: ', id(cam))
 
     # Iniciar la cámara en segundo plano
