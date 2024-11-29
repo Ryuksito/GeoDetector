@@ -33,31 +33,39 @@ class UART:
             self.serial_port.write(serial_data.encode('utf-8'))
             print(f"Enviado: {serial_data}")
 
+    def receive_data(self):
+        """
+        Recibe datos desde el puerto UART y los imprime.
+        """
+        if self.serial_port.is_open:
+            try:
+                data = self.serial_port.readline().decode('utf-8').strip()
+                if data:
+                    print(f"Recibido: {data}")
+            except Exception as e:
+                print(f"Error al recibir datos: {e}")
+
     def _transmit_loop(self):
         """
-        Bucle interno que envía datos continuamente mientras `self.running` es True.
+        Bucle interno que envía y recibe datos continuamente mientras `self.running` es True.
         """
         while self.running:
             try:
-                # Obtiene los datos de `get_metadata`
+                # Enviar los datos de `cam.metadata`
                 metadata = cam.metadata
                 if metadata:
                     self.send_data(metadata)
-                
-                if self.serial_port.in_waiting > 0:
-                    data = self.serial_port.readline().decode('utf-8').strip()
-                    print(f"Recibido del ESP32: {data}")
+
+                # Recibir datos desde el ESP32
+                self.receive_data()
             except Exception as e:
-                print(f"Error en la transmisión: {e}")
+                print(f"Error en la transmisión/recepción: {e}")
             finally:
-                time.sleep(0.5)  # Intervalo entre transmisiones
+                time.sleep(0.5)  # Intervalo entre transmisiones y recepciones
 
     def start(self):
         """
         Inicia el hilo de transmisión de datos.
-
-        Args:
-            get_metadata (callable): Función para obtener los datos que se enviarán por UART.
         """
         if not self.running:
             self.running = True
@@ -75,4 +83,3 @@ class UART:
                 self.thread.join()
             self.serial_port.close()
             print("Hilo de transmisión UART detenido y puerto cerrado.")
-
