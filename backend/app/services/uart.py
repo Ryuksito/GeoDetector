@@ -43,6 +43,8 @@ class UART:
                 metadata = cam.metadata
                 if metadata:
                     self.send_data(metadata)
+                    data = self.serial_port.readline().decode('utf-8').strip()
+                    print(f"Recibido del ESP32: {data}")
             except Exception as e:
                 print(f"Error en la transmisión: {e}")
             finally:
