@@ -30,7 +30,7 @@ class UART:
         """
         if self.serial_port.is_open:
             serial_data = ';'.join([str(v) for v in data.values()])
-            self.serial_port.write(serial_data)
+            self.serial_port.write(serial_data.encode('utf-8'))
             print(f"Enviado: {serial_data}")
 
     def _transmit_loop(self):
