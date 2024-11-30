@@ -32,7 +32,7 @@ class Camera:
                 "y_dobj": 0,
                 "z_dobj": 0,
                 "dobj": 0,
-                "area": 4.5
+                "area": 0
             }
             self.running = False
 
