@@ -22,46 +22,61 @@ class UART:
             self.serial_port = serial.Serial(port, baudrate=baud_rate, timeout=1)
             self.running = False
             self.thread = None
+            self.receiving_data_ready = False  # Indica si se recibió "RECEIVING DATA"
             self._initialized = True
 
     def send_data(self, data):
         """
-        Envía datos al puerto UART en formato JSON.
+        Envía datos al puerto UART del formato JSON.
         """
-        if self.serial_port.is_open:
+        if self.serial_port.is_open and self.receiving_data_ready:
             serial_data = ';'.join([str(v) for v in data.values()])
             self.serial_port.write(serial_data.encode('utf-8'))
             print(f"Enviado: {serial_data}")
 
     def receive_data(self):
         """
-        Recibe datos desde el puerto UART y los imprime.
+        Recibe datos desde el puerto UART.
         """
         if self.serial_port.is_open:
             try:
                 data = self.serial_port.readline().decode('utf-8').strip()
                 if data:
                     print(f"Recibido: {data}")
+                    # Verificar si el mensaje recibido es "RECEIVING DATA"
+                    if data == "RECEIVING DATA":
+                        self.receiving_data_ready = True
+                        print("ESP32 listo para recibir datos.")
+                return data
             except Exception as e:
                 print(f"Error al recibir datos: {e}")
+                return None
 
     def _transmit_loop(self):
         """
         Bucle interno que envía y recibe datos continuamente mientras `self.running` es True.
         """
+        print("Esperando mensaje 'RECEIVING DATA'...")
         while self.running:
             try:
-                # Enviar los datos de `cam.metadata`
+                # Primero, espera recibir "RECEIVING DATA"
+                if not self.receiving_data_ready:
+                    self.receive_data()
+                    time.sleep(0.1)  # Reducir carga en espera
+                    continue
+
+                # Si ya recibió "RECEIVING DATA", comienza la transmisión
                 metadata = cam.metadata
                 if metadata:
                     self.send_data(metadata)
 
-                # Recibir datos desde el ESP32
+                # También escucha constantemente al ESP32
                 self.receive_data()
+
             except Exception as e:
                 print(f"Error en la transmisión/recepción: {e}")
             finally:
-                time.sleep(0.5)  # Intervalo entre transmisiones y recepciones
+                time.sleep(0.5)  # Intervalo entre operaciones
 
     def start(self):
         """
@@ -69,7 +84,7 @@ class UART:
         """
         if not self.running:
             self.running = True
-            self.thread = threading.Thread(target=self._transmit_loop)
+            self.thread = threading.Thread(target=self._transmit_loop, daemon=True)
             self.thread.start()
             print("Hilo de transmisión UART iniciado.")
 
