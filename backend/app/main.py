@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -20,12 +21,22 @@ async def lifespan(app: FastAPI):
     uart = UART(port=port, baud_rate=115200)
     uart.start()
     print("Servicios inicializados.")
+
     try:
         yield
+    except asyncio.CancelledError:
+        print("Cancelación detectada, asegurando limpieza...")
     finally:
-        uart.stop()
-        cam.stop()
-        print("Servicios detenidos.")
+        print("Cerrando aplicación...")
+
+        # Detener los servicios
+        try:
+            uart.stop()
+            cam.stop()
+            print("Servicios detenidos.")
+        except Exception as e:
+            print(f"Error al detener servicios: {e}")
+
 
 # Crear la instancia de FastAPI
 app = FastAPI(lifespan=lifespan)

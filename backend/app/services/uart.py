@@ -19,7 +19,10 @@ class UART:
 
     def __init__(self, port="/dev/ttyUSB0", baud_rate=115200):
         if not hasattr(self, "_initialized"):
-            self.serial_port = serial.Serial(port, baudrate=baud_rate, timeout=1)
+            try:
+                self.serial_port = serial.Serial(port, baudrate=baud_rate, timeout=1)
+            except:
+                self.serial_port = None
             self.running = False
             self.thread = None
             self.rx_thread = None
@@ -71,12 +74,10 @@ class UART:
         """
         Inicia el hilo de transmisión de datos.
         """
-        if not self.running:
+        if not self.running and self.serial_port is not None:
             self.running = True
 
             self.running = True
-            if not self.serial_port.is_open:
-                raise ValueError("missing 1 required positional argument: 'port'")
             
             print(self.serial_port)
 
@@ -86,6 +87,8 @@ class UART:
             self.tx_thread = threading.Thread(target=self._tx_task, daemon=True)
             self.tx_thread.start()
             print("Hilo de transmisión UART iniciado.")
+        else: 
+            print("No se inicializo el uart")
 
     def stop(self):
         """

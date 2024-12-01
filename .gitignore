@@ -53,9 +53,7 @@ dist/
 .eggs/
 
 # Docker
-*.env
 docker-compose.override.yml
-.env.*
 
 # Security Keys (Secrets)
 *.key

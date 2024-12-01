@@ -72,6 +72,7 @@ class Camera:
             if self.thread and self.thread.is_alive():
                 self.thread.join()
         self.cap.release()
+        print('Camera serivice stoped')
 
     def get_frame(self):
         """Obtiene el último frame capturado."""
