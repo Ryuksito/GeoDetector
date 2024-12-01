@@ -11,9 +11,6 @@ import os
 from dotenv import load_dotenv
 load_dotenv(dotenv_path=".env")
 
-# Crear la instancia de FastAPI
-app = FastAPI()
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     cam = Camera()
@@ -30,7 +27,8 @@ async def lifespan(app: FastAPI):
         cam.stop()
         print("Servicios detenidos.")
 
-# Crear una instancia de la cámara
+# Crear la instancia de FastAPI
+app = FastAPI(lifespan=lifespan)
 
 
 # Incluir las rutas de video
