@@ -35,15 +35,12 @@ class UART:
         if self.serial_port.is_open and self.receiving_data_ready:
             serial_data = ';'.join([str(v) for v in data.values()]) + '\n'
             self.serial_port.write(serial_data.encode('utf-8'))
-            print(f"Enviado: {serial_data}")
+            # print(f"Enviado: {serial_data}")
 
     def receive_data(self):
-        print(self.serial_port.is_open)
         if self.serial_port.is_open:
             try:
-                print('recive data')
                 data = self.serial_port.readline().decode('utf-8').strip()
-                print('data: ',data)
                 if data:
                     print(f"Recibido: {data}")
                     # Verificar si el mensaje recibido es "RECEIVING DATA"
