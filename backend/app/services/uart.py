@@ -43,7 +43,7 @@ class UART:
             try:
                 print('recive data')
                 data = self.serial_port.readline().decode('utf-8').strip()
-                print(data)
+                print('data: ',data)
                 if data:
                     print(f"Recibido: {data}")
                     # Verificar si el mensaje recibido es "RECEIVING DATA"
