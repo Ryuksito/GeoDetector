@@ -41,6 +41,7 @@ class UART:
         print(self.serial_port.is_open)
         if self.serial_port.is_open:
             try:
+                print('recive data')
                 data = self.serial_port.readline().decode('utf-8').strip()
                 print(data)
                 if data:
