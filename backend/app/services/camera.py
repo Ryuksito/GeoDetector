@@ -67,6 +67,10 @@ class Camera:
     def stop(self):
         """Detiene la captura de la cámara."""
         self.running = False
+        if self.running:
+            self.running = False
+            if self.thread and self.thread.is_alive():
+                self.thread.join()
         self.cap.release()
 
     def get_frame(self):
