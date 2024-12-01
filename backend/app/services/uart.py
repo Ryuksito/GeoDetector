@@ -56,11 +56,13 @@ class UART:
 
     def _rx_task(self):
         while self.running:
+            print('recibiendo datos')
             self.receive_data()
             time.sleep(0.1)
 
     def _tx_task(self):
         while self.running:
+            print('enviando datos')
             metadata = cam.metadata
             if metadata:
                 self.send_data(metadata)
@@ -76,6 +78,8 @@ class UART:
             self.running = True
             if not self.serial_port.is_open:
                 raise ValueError("missing 1 required positional argument: 'port'")
+            
+            print(self.serial_port)
 
             self.rx_thread = threading.Thread(target=self._rx_task, daemon=True)
             self.rx_thread.start()
