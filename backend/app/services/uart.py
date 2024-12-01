@@ -38,6 +38,7 @@ class UART:
             print(f"Enviado: {serial_data}")
 
     def receive_data(self):
+        print(self.serial_port.is_open)
         if self.serial_port.is_open:
             try:
                 data = self.serial_port.readline().decode('utf-8').strip()
@@ -57,7 +58,6 @@ class UART:
 
     def _rx_task(self):
         while self.running:
-            print('recibiendo datos')
             self.receive_data()
             time.sleep(0.1)
 
