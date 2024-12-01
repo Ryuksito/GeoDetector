@@ -4,6 +4,10 @@ from fastapi.staticfiles import StaticFiles
 from app.api.routes import video, control, health
 from app.services.camera import Camera
 from app.services.uart import UART
+import os
+
+from dotenv import load_dotenv
+load_dotenv(dotenv_path=".env")
 
 # Crear la instancia de FastAPI
 app = FastAPI()
@@ -11,7 +15,9 @@ app = FastAPI()
 # Crear una instancia de la cámara
 cam = Camera()
 cam.start()
-uart = UART(port="/dev/ttyUSB0", baud_rate=115200)
+
+port = os.getenv("LINUX-UART-PORT") if os.name == "posix" else os.getenv("WINDOWS-UART-PORT")
+uart = UART(port=port, baud_rate=115200)
 uart.start()
 
 # Incluir las rutas de video
