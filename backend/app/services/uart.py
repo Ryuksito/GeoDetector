@@ -40,7 +40,8 @@ class UART:
     def receive_data(self):
         if self.serial_port.is_open:
             try:
-                data = self.serial_port.readline().decode('utf-8').strip()
+                raw_data = self.serial_port.readline()
+                data = raw_data.decode('utf-8').strip()
                 if data:
                     print(f"Recibido: {data}")
                     # Verificar si el mensaje recibido es "RECEIVING DATA"
@@ -51,7 +52,7 @@ class UART:
                             print("ESP32 listo para recibir datos.")
                 return data
             except Exception as e:
-                print(f"Error al recibir datos: {e}")
+                print(f"Error al recibir datos: {e}, data: {raw_data}")
                 return None
 
     def _rx_task(self):
