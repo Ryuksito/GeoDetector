@@ -32,7 +32,7 @@ class UART:
         """
         Envía datos al puerto UART del formato JSON.
         """
-        if self.serial_port.is_open and self.receiving_data_ready:
+        if self.serial_port.is_open and self.receiving_data_ready and (data['dobj'] > 0):
             serial_data = ';'.join([str(v) for v in data.values()]) + '\n'
             self.serial_port.write(serial_data.encode('utf-8'))
             # print(f"Enviado: {serial_data}")
