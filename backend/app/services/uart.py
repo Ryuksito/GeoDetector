@@ -73,6 +73,10 @@ class UART:
         if not self.running:
             self.running = True
 
+            self.running = True
+            if not self.serial_port.is_open:
+                raise ValueError("missing 1 required positional argument: 'port'")
+
             self.rx_thread = threading.Thread(target=self._rx_task, daemon=True)
             self.rx_thread.start()
             
