@@ -17,7 +17,7 @@ class UART:
                 cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, port="/dev/ttyUSB0", baud_rate=115200):
+    def __init__(self, port=None, baud_rate=115200):
         if not hasattr(self, "_initialized"):
             try:
                 self.serial_port = serial.Serial(port, baudrate=baud_rate, timeout=1)
@@ -38,7 +38,9 @@ class UART:
         if self.serial_port.is_open and self.receiving_data_ready and (data['dobj'] > 0):
             serial_data = ';'.join([str(v) for v in data.values()]) + '\n'
             self.serial_port.write(serial_data.encode('utf-8'))
-            # print(f"Enviado: {serial_data}")
+            print(f"Sended: {serial_data}")
+            self.receiving_data_ready = False
+
 
     def receive_data(self):
         if self.serial_port.is_open:
@@ -67,7 +69,7 @@ class UART:
         while self.running:
             metadata = cam.metadata
             if metadata:
-                self.send_data(metadata)
+                self.send_data(metadata)  
             time.sleep(0.1)
 
     def start(self):
@@ -86,9 +88,10 @@ class UART:
             
             self.tx_thread = threading.Thread(target=self._tx_task, daemon=True)
             self.tx_thread.start()
+
             print("Hilo de transmisión UART iniciado.")
         else: 
-            print("No se inicializo el uart")
+            print("No se inicializo el uart: ", self.serial_port)
 
     def stop(self):
         """
