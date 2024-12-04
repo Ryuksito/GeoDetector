@@ -1,19 +1,19 @@
 {
     "cam_idx": 0,
-    "target_shape": "Circle",
+    "target_shape": "Quadrilateral",
     "focal_lenght": 600,
     "kernel_shape": [
         5,
         5
     ],
     "lower_hsv": [
-        40,
-        79,
-        132
+        22,
+        51,
+        151
     ],
     "upper_hsv": [
         90,
-        156,
-        228
+        255,
+        255
     ]
 }
